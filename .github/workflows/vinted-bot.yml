@@ -1,0 +1,35 @@
+name: Vinted Bot
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Récupérer le fichier des articles déjà vus
+        uses: actions/cache@v4
+        with:
+          path: seen_items.json
+          key: seen-items-cache
+
+      - name: Lancer le bot
+        env:
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          PROXY_URL: ${{ secrets.PROXY_URL }}
+        run: python vinted_bot.py
